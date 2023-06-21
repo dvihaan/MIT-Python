@@ -1,12 +1,3 @@
-# 6.0001 Problem Set 3
-#
-# The 6.0001 Word Game
-# Created by: Kevin Luu <luuk> and Jenna Wiens <jwiens>
-#
-# Name          : <your name>
-# Collaborators : <your collaborators>
-# Time spent    : <total time>
-
 import math
 import random
 import string
@@ -19,11 +10,7 @@ SCRABBLE_LETTER_VALUES = {
     'a': 1, 'b': 3, 'c': 3, 'd': 2, 'e': 1, 'f': 4, 'g': 2, 'h': 4, 'i': 1, 'j': 8, 'k': 5, 'l': 1, 'm': 3, 'n': 1, 'o': 1, 'p': 3, 'q': 10, 'r': 1, 's': 1, 't': 1, 'u': 1, 'v': 4, 'w': 4, 'x': 8, 'y': 4, 'z': 10
 }
 
-# -----------------------------------
-# Helper code
-# (you don't need to understand this helper code)
-
-WORDLIST_FILENAME = "words.txt"
+WORDLIST_FILENAME = "/Users/vihaandas/Documents/GitHub/MIT-Python/PS3/words.txt"
 
 def load_words():
     """
@@ -91,12 +78,22 @@ def get_word_score(word, n):
     n: int >= 0
     returns: int >= 0
     """
-    
-    pass  # TO DO... Remove this line when you implement this function
 
-#
-# Make sure you understand how this function works and what it does!
-#
+    comp1 = 0
+    comp2 = 0
+    score = 0
+    wordLength = len(word)
+    word = str.lower(word)
+    for letter in word:
+        comp1 += SCRABBLE_LETTER_VALUES[letter]
+    comp2 = 7*wordLength - 3*(n - wordLength)
+    if comp2 < 1:
+        comp2 = 1
+
+    score = comp1 * comp2
+
+    return score
+
 def display_hand(hand):
     """
     Displays the letters currently in the hand.
@@ -168,8 +165,18 @@ def update_hand(hand, word):
     returns: dictionary (string -> int)
     """
 
-    pass  # TO DO... Remove this line when you implement this function
+    newHand = {}
+    word_dict = get_frequency_dict(str.lower(word))
 
+    for k in hand.keys():
+        if k in word_dict.keys():
+            newHand[k] = hand[k] - word_dict[k]
+            if newHand[k] <= 0:
+                del newHand[k]
+        else:
+            newHand[k] = hand[k]
+
+    return newHand
 #
 # Problem #3: Test word validity
 #
@@ -185,7 +192,18 @@ def is_valid_word(word, hand, word_list):
     returns: boolean
     """
 
-    pass  # TO DO... Remove this line when you implement this function
+    word = str.lower(word)
+    if word not in word_list:
+        return False
+
+    word_dict = get_frequency_dict(word)
+    for letter in word_dict.keys():
+        if letter not in hand.keys():
+            return False
+        if word_dict[letter] > hand[letter]:
+            return False
+    
+    return True
 
 #
 # Problem #5: Playing a hand
