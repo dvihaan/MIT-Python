@@ -85,7 +85,8 @@ def get_word_score(word, n):
     wordLength = len(word)
     word = str.lower(word)
     for letter in word:
-        comp1 += SCRABBLE_LETTER_VALUES[letter]
+        if letter != '*':
+            comp1 += SCRABBLE_LETTER_VALUES[letter]
     comp2 = 7*wordLength - 3*(n - wordLength)
     if comp2 < 1:
         comp2 = 1
@@ -192,9 +193,19 @@ def is_valid_word(word, hand, word_list):
     returns: boolean
     """
 
+    vowels = ['a','e','i','o','u']
     word = str.lower(word)
-    if word not in word_list:
-        return False
+
+    if '*' not in word:
+        if word not in word_list:
+            return False
+    else:
+        valid = False
+        for vowel in vowels:
+            if word.replace('*',vowel,1) in word_list:
+                valid = True
+        if not valid:
+            return valid
 
     word_dict = get_frequency_dict(word)
     for letter in word_dict.keys():
