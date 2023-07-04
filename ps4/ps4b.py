@@ -105,9 +105,7 @@ class Message(object):
             original_letter = alphabet[i]
             shifted_letter = alphabet[(i + shift)%26]
             shifted_dict[original_letter] = shifted_letter
-            original_upper = original_letter.upper()
-            shifted_upper = shifted_letter.upper()
-            shifted_dict[original_upper] = shifted_upper
+            shifted_dict[original_letter.upper()] = shifted_letter.upper()
         return shifted_dict
 
     def apply_shift(self, shift):
@@ -122,11 +120,14 @@ class Message(object):
         Returns: the message text (string) in which every character is shifted
              down the alphabet by the input shift
         '''
-        ciphered_message = ""
+        ciphered_message = []
         cipher = self.build_shift_dict(shift)
         for letter in self.message_text:
-            ciphered_message += cipher[letter]
-        return ciphered_message
+            if letter in cipher.keys():
+                ciphered_message.append(cipher[letter])
+            else:
+                ciphered_message.append(letter)
+        return ''.join(ciphered_message)
 
 class PlaintextMessage(Message):
     def __init__(self, text, shift):
@@ -144,8 +145,7 @@ class PlaintextMessage(Message):
             self.message_text_encrypted (string, created using shift)
 
         '''
-        self.message_text = text
-        self.valid_words = load_words("/Users/vihaandas/Documents/GitHub/MIT-Python/ps4/words.txt")
+        super().__init__(text)
         self.shift = shift
         self.encryption_dict = self.build_shift_dict(shift)
         self.message_text_encrypted = self.apply_shift(shift)
@@ -200,8 +200,7 @@ class CiphertextMessage(Message):
             self.message_text (string, determined by input text)
             self.valid_words (list, determined using helper function load_words)
         '''
-        self.message_text = text
-        self.valid_words = load_words("/Users/vihaandas/Documents/GitHub/MIT-Python/ps4/words.txt")
+        super().__init__(text)
 
     def decrypt_message(self):
         '''
@@ -222,22 +221,30 @@ class CiphertextMessage(Message):
 
         best_shift = 0
         max_word_count = 0
+        best_decryption = None
         for i in range(26):
-            decrypted_words = self.apply_shift(i)
-            real_word_count = sum(self.message_text in self.valid_words for word in decrypted_words)
+            decrypted_words = self.apply_shift(i).split()
+            real_word_count = sum(1 for word in decrypted_words if word in self.valid_words)
             if real_word_count > max_word_count:
                 max_word_count = real_word_count
                 best_shift = i
-        return best_shift, decrypted_words
+                best_decryption = decrypted_words
+        return best_shift, best_decryption
 
 if __name__ == '__main__':
 
+
 #   Example test case (PlaintextMessage)
-    plaintext = PlaintextMessage('hello', 2)
-    print('Expected Output: jgnnq')
-    print('Actual Output:', plaintext.get_message_text_encrypted())
+#    plaintext = PlaintextMessage('hello', 2)
+#    print('Expected Output: jgnnq')
+#    print('Actual Output:', plaintext.get_message_text_encrypted())
 
 #   Example test case (CiphertextMessage)
-    ciphertext = CiphertextMessage('jgnnq')
-    print('Expected Output:', (24, 'hello'))
-    print('Actual Output:', ciphertext.decrypt_message())
+#    ciphertext = CiphertextMessage('jgnnq')
+#    print('Expected Output:', (24, 'hello'))
+#    print('Actual Output:', ciphertext.decrypt_message())
+
+    story = ' '.join(load_words('/Users/vihaandas/Documents/GitHub/MIT-Python/ps4/story.txt'))
+    print(story)
+    ciphertext = CiphertextMessage(story)
+    print(' '.join(ciphertext.decrypt_message()[1]))
