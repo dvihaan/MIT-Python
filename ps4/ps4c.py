@@ -111,9 +111,8 @@ class SubMessage(object):
         '''
         
         transposed_dict = {}
-        alphabet = CONSONANTS_LOWER + CONSONANTS_UPPER
-        vowels = VOWELS_LOWER + VOWELS_UPPER
-        perm_count = 0
+        consonants = CONSONANTS_LOWER + CONSONANTS_UPPER
+        '''
         for letter in alphabet:
             transposed_dict[letter] = letter
             current_perm = vowels_permutation[perm_count]
@@ -124,6 +123,13 @@ class SubMessage(object):
                 elif letter in VOWELS_UPPER:
                     transposed_dict[letter] = current_perm.upper()
                     perm_count += 1
+        '''
+        for perm_count, vowel in enumerate(VOWELS_LOWER):
+            transposed_dict[vowel] = vowels_permutation[perm_count].lower()
+        for perm_count, vowel in enumerate(VOWELS_UPPER):
+            transposed_dict[vowel] = vowels_permutation[perm_count].upper()
+        for consonant in consonants:
+            transposed_dict[consonant] = consonant
 
         return transposed_dict
     
@@ -137,7 +143,7 @@ class SubMessage(object):
         
         transposed_message = []
         for letter in self.message_text:
-            if letter in transpose_dict.keys:
+            if letter in transpose_dict.keys():
                 transposed_message.append(transpose_dict[letter])
             else:
                 transposed_message.append(letter)
@@ -154,7 +160,7 @@ class EncryptedSubMessage(SubMessage):
             self.message_text (string, determined by input text)
             self.valid_words (list, determined using helper function load_words)
         '''
-        pass #delete this line and replace with your code here
+        super().__init__(text)
 
     def decrypt_message(self):
         '''
@@ -174,8 +180,17 @@ class EncryptedSubMessage(SubMessage):
         
         Hint: use your function from Part 4A
         '''
-        pass #delete this line and replace with your code here
-    
+        vowel_perms = get_permutations(VOWELS_LOWER)
+        max_word_count = 0
+        best_decrypt = None
+        for perm in vowel_perms:
+            transpose_dict = self.build_transpose_dict(perm)
+            decrypted_words = self.apply_transpose(transpose_dict).split()
+            real_word_count = sum(1 for word in decrypted_words if word.lower() in self.valid_words)
+            if real_word_count > max_word_count:
+                max_word_count = real_word_count
+                best_decrypt = decrypted_words
+        return ' '.join(best_decrypt)
 
 if __name__ == '__main__':
 
@@ -188,5 +203,3 @@ if __name__ == '__main__':
     print("Actual encryption:", message.apply_transpose(enc_dict))
     enc_message = EncryptedSubMessage(message.apply_transpose(enc_dict))
     print("Decrypted message:", enc_message.decrypt_message())
-     
-    #TODO: WRITE YOUR TEST CASES HERE
